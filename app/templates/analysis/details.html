@@ -1,0 +1,146 @@
+{% extends 'analysis/base.html' %}
+
+{% block container %}
+        <div class="container-fluid">
+            <div class="row">
+                <!-- json Modal -->
+                <div class="modal fade" id="jsonModal" tabindex="-1" role="dialog" aria-labelledby="jsonModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="jsonModalLabel">JSON</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                          <pre id="showJsonPre"></pre>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+                <table id="mytable" class="table table-responsive table-striped table-hover" style="width:100%; ">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th scope="col">ID</th>
+                            <th scope="col">UUID</th>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">Url</th>
+                            <th scope="col">Method</th>
+                            <th scope="col">Remote address</th>
+                            <!--<th scope="col">Response status</th>-->
+                            <!--<th scope="col">Response content type</th>-->
+                        </tr>
+                    </thead>
+                    <tbody>
+                      {% for elem in table_content %}
+                        <tr class="big-row" data-index="{{ loop.index0 }}">
+                            <td class="details-control"><i class="fa fa-plus-square" aria-hidden="true"></i></td>
+                            <td style="">{{ elem.request.id }}</td>
+                            <td style="">{{ elem.uuid }}</td>
+                            <td style="">{{ elem.request.timestamp }}</td>
+                            <td style="overflow-wrap: break-word; word-wrap: break-word; -ms-word-break: break-all; word-break: break-all;">{{ elem.request.url }}</td>
+                            <td style="">{{ elem.request.method }}</td>
+                            <td style="">{{ elem.request.remote_addr }}</td>
+                            <!--<td style="">{# {{ elem.response.status }} #}</td>-->
+                            <!--<td style="">{# {{ elem.response.headers['Content-Type'] }} #}</td>-->
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                </table>
+
+
+                <script>
+
+                $(document).ready( function () {
+                    var table =  $('#mytable').DataTable({
+                        /*dom: 'Bfrtip',*/
+                        /*buttons: [
+                            'columnsToggle'
+                        ],*/
+                        "columnDefs": [
+                            { "orderable": false, "targets": [0] },
+                            { "visible": false, "targets": [2]}
+                          ]
+                    });
+
+                    // Add event listener for opening and closing details
+                    $('#mytable tbody').on('click', 'td.details-control', function () {
+                        var tr = $(this).closest('tr');
+                        var tdi = tr.find("i.fa");
+                        var row = table.row( tr );
+
+                        if ( row.child.isShown() ) {
+                            // This row is already open - close it
+                            row.child.hide();
+                            tr.removeClass('shown');
+                            tdi.first().removeClass('fa-minus-square');
+                            tdi.first().addClass('fa-plus-square');
+                        }
+                        else {
+                            // Open this row
+                            row.child( format(row.data()) ).show();
+                            tr.addClass('shown');
+                            tdi.first().removeClass('fa-plus-square');
+                            tdi.first().addClass('fa-minus-square');
+                        }
+                    } );
+
+                    // triggered when delete button pressed
+                    $(document).on('click', '.deleteRowBtn', function(e) {
+                        // send delete request and remove row from table
+                        var b = this;
+                        $.ajax({
+                            url: "/api/analysis/"+this.value+"?token={{ ANALYSIS_TOKEN }}",
+                            type: "DELETE",
+                            success: function(result) {
+                                table.row(b.closest('table').closest('tr').previousSibling).remove().draw(false);
+                            }
+                        });
+                    });
+
+
+                } );
+
+
+                // Formatting function for row details
+                function format ( d ) {
+                    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+                        '<tr>'+
+                            '<td>UUID:</td>'+
+                            '<td>'+d[2]+'</td>'+
+                        '</tr>'+
+                        '<tr>'+
+                            '<td>Functions:</td>'+
+                            '<td><button type="button" class="deleteRowBtn btn btn-outline-danger btn-sm" value="'+d[2]+'" >Delete row</button>\r\n'+
+                            '<button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#jsonModal" data-uuid-sub="'+d[2]+'">Show JSON</button></td>'+
+                        '</tr>'+
+                    '</table>';
+                }
+
+                // triggered when show JSON modal is about to be shown
+                $('#jsonModal').on('show.bs.modal', function(e) {
+                    // empty pre content
+                    $(e.currentTarget).find('#showJsonPre').text("... requesting data ...");
+                    //get data-uuid-sub attribute of the clicked element
+                    var myuuid = $(e.relatedTarget).data('uuid-sub');
+                    var textedJson;
+                    $.getJSON("/api/analysis/"+myuuid+"?token={{ ANALYSIS_TOKEN }}", function(data) {
+                        // beautify and display data
+                        textedJson = JSON.stringify(data, undefined, 4);
+                        $(e.currentTarget).find('#showJsonPre').text(textedJson);
+                    });
+                });
+                </script>
+            </div>
+        </div>
+        <!-- END container-fluid -->
+{% endblock %}

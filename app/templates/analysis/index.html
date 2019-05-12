@@ -1,0 +1,175 @@
+{% extends 'analysis/base.html' %}
+
+{% block container %}
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-xl-12">
+                <h1 class="main-title float-left">Overview</h1>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-warning">
+                            <i class="fas fa-database fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Stored requests</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_stored_requests_count }}</h1>
+                            <span class="text-white">{{ data_requests_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-info">
+                            <i class="fas fa-user fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Distinct IP addresses</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_distinct_ip_count }}</h1>
+                            <span class="text-white">{{ data_distinct_data_ips_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-danger">
+                            <i class="fas fa-exclamation-triangle fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">WordPress pwd guesses</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_wp_password_tries_count }}</h1>
+                            <span class="text-white">{{ data_wp_password_tries_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-info">
+                            <i class="far fa-smile fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Here is a smiley</h6>
+                            <h1 class="m-b-20 text-white counter">:)</h1>
+                            <span class="text-white">Have a nice day</span>
+                    </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Requests (last 24 hours)</h3>
+                        UTC time now: {{ utc_time_now }}
+                    </div>
+                    <div class="card-body">
+                        <canvas id="myChart"></canvas>
+
+                        <script>
+                            var ctx = document.getElementById('myChart').getContext('2d');
+                            var myChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: {{ requests_chart_last_24h_index|safe }},
+                                    datasets: [{
+                                        label: '# of requests',
+                                        data: {{ requests_chart_last_24h_values }},
+                                        "fill":false,
+                                        borderColor: 'rgb(178,223,219)',
+                                        backgroundColor: 'rgb(178,223,219)'
+                                    }]
+                                },
+                                options: {}
+                            });
+                            </script>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Accessed endpoints</h3>
+                        All time - Top 10
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Endpoint</th>
+                              <th scope="col"># of requests</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_endpoints_top %}
+                            <tr>
+                                <td>{{ elem[0][0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>IP addresses</h3>
+                        All time - Top 10
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Remote address</th>
+                              <th scope="col"># of requests</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_ip_top %}
+                            <tr>
+                                <td>{{ elem.remote_addr }}</td>
+                                <td>{{ elem.qty }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Most accessed paths</h3>
+                        All time - Top 10
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Path</th>
+                              <th scope="col"># of requests</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_url_path_top %}
+                            <tr>
+                                <td>{{ elem[0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+        </div>
+        <!-- end row -->
+
+    </div>
+    <!-- END container-fluid -->
+{% endblock %}

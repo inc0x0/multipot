@@ -1,0 +1,166 @@
+{% extends 'analysis/base.html' %}
+
+{% block container %}
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-xl-12">
+                <h1 class="main-title float-left">WordPress</h1>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-danger">
+                            <i class="fas fa-exclamation-triangle fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Total password guesses</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_wp_password_tries_count }}</h1>
+                            <span class="text-white">{{ data_wp_password_tries_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-warning">
+                            <i class="fas fa-database fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Password guesses on wp-login</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_wordpress_wp_login_password_tries_count }}</h1>
+                            <span class="text-white">{{ data_wordpress_wp_login_password_tries_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-warning">
+                            <i class="fas fa-database fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Password guesses on xmlrpc</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_wordpress_xmlrpc_password_tries_count }}</h1>
+                            <span class="text-white">{{ data_wordpress_xmlrpc_password_tries_last_24h_count }} (last 24 hours)</span>
+                    </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card-box noradius noborder bg-info">
+                            <i class="fas fa-key fa-6x float-right text-white"></i>
+                            <h6 class="text-white text-uppercase m-b-20">Distinct passwords tried</h6>
+                            <h1 class="m-b-20 text-white counter">{{ data_distinct_passwords_tried }}</h1>
+                            <span class="text-white">Have a nice day</span>
+                    </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Usernames (Top 10)</h3>
+                        via wp-login.php
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Username</th>
+                              <th scope="col"># of tries</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_wp_login_usernames_top %}
+                            <tr>
+                                <td>{{ elem[0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Passwords (Top 10)</h3>
+                        via wp-login.php
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Password</th>
+                              <th scope="col"># of tries</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_wp_login_passwords_top %}
+                            <tr>
+                                <td>{{ elem[0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Usernames (Top 10)</h3>
+                        via xmlrpc.php
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Username</th>
+                              <th scope="col"># of tries</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_wp_xmlrpc_usernames_top %}
+                            <tr>
+                                <td>{{ elem[0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-3">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3>Passwords (Top 10)</h3>
+                        via xmlrpc.php
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-xl table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Password</th>
+                              <th scope="col"># of tries</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for elem in data_wp_xmlrpc_passwords_top %}
+                            <tr>
+                                <td>{{ elem[0] }}</td>
+                                <td>{{ elem[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                    </div>
+                </div><!-- end card-->
+            </div>
+        </div>
+        <!-- end row -->
+
+    </div>
+    <!-- END container-fluid -->
+{% endblock %}
