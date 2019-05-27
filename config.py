@@ -8,6 +8,7 @@ class Config(object):
     EXCLUDE_FROM_LOGGING = ['/analysis/index',
                             '/analysis/details',
                             '/analysis/wordpress',
+                            '/analysis/ip',
                             '/api/analysis',
                             '/static/assets',
                             '/favicon.ico']
