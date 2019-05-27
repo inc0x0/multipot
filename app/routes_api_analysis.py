@@ -3,20 +3,21 @@ from flask import request, jsonify, render_template
 from config import Config
 from app.wrappers import token_required
 from app.analysis_functions import *
-
+import ipaddress
 
 
 # Returns an excerpt of all stored request/response pairs
+# not used
 @app.route('/api/analysis/data')
 @token_required
 def api_analysis_data():
     # omits rows when response or request is missing
-    data = [{'uuid': req.uuid,
+    data = {"data": [{'uuid': req.uuid,
              'request': {'id': req.id, 'url': req.url, 'timestamp': req.timestamp, 'method': req.method,
                          'remote_addr': req.remote_addr},
              'response': {'status': resp.status, 'headers': resp.headers}}
             for req in models.Request.query.all()
-            for resp in models.Response.query.filter_by(request_uuid=req.uuid).all()]
+            for resp in models.Response.query.filter_by(request_uuid=req.uuid).all()]}
     return jsonify(data)
 
 
@@ -44,6 +45,46 @@ def api_analysis_data_uuid(uuid):
             return jsonify({'message': 'No such UUID'}), 404
 
 
+# not used
+@app.route('/api/analysis/ip/<ip>')
+@token_required
+def api_analysis_ip(ip):
+    try:
+        ipaddress.ip_address(ip)
+    except ValueError:
+        return jsonify({'message': 'Not a valid IP address'}), 404
+    data = [{'uuid': req.uuid,
+             'request': {'id': req.id, 'url': req.url, 'timestamp': req.timestamp, 'method': req.method,
+                         'remote_addr': req.remote_addr}}
+            for req in models.Request.query.filter_by(remote_addr=ip).all()]
+    return jsonify(data)
+
+
+@app.route('/api/analysis/ip/geoinfo/<ip>')
+@token_required
+def api_geoinfo_ip(ip):
+    try:
+        ipaddress.ip_address(ip)
+    except ValueError:
+        return jsonify({'message': 'Not a valid IP address'}), 404
+    geo_whois = gather_ip_geo_whois(ip)
+    return jsonify(geo_whois)
+
+
+@app.route('/api/analysis/chart/requests/days/<int:days>', methods=['GET'])
+@token_required
+def api_analysis_chart_requests_last_x_days(days):
+    requests_chart_last_x_days_days, requests_chart_last_x_days_requests = requests_last_x_days_chart(days)
+    return jsonify({'days': requests_chart_last_x_days_days, 'requests': requests_chart_last_x_days_requests})
+
+
+@app.route('/api/analysis/chart/requests/hours/<int:hours>', methods=['GET'])
+@token_required
+def api_analysis_chart_requests_last_x_hours(hours):
+    requests_chart_last_x_days_hours, requests_chart_last_x_hours_requests = requests_last_x_hours_chart(hours)
+    return jsonify({'hours': requests_chart_last_x_days_hours, 'requests': requests_chart_last_x_hours_requests})
+
+
 @app.route('/analysis/index')
 @token_required
 def analysis_index():
@@ -54,27 +95,16 @@ def analysis_index():
     data_distinct_data_ips_last_24h_count = distinct_ip_addresses_last_24h_count()
     data_wp_password_tries_count = wordpress_wp_login_password_tries_count() + wordpress_xmlrpc_password_tries_count()
     data_wp_password_tries_last_24h_count = wordpress_wp_login_password_tries_last_24h_count() + wordpress_xmlrpc_password_tries_last_24h_count()
-    # row 2
-    requests_chart_last_24h_values, requests_chart_last_24h_index = requests_last_24h_chart()
-    data_endpoints_top = endpoints_top(10)
-    data_ip_top = ip_addresses_top(10)
     # row 3
     data_url_path_top = paths_top(10)
-
-    # .. the last 30 days
-    #requests_last_30d = db.session.query(models.Request).filter(
-    #    models.Request.timestamp > (datetime.utcnow() - timedelta(days=30))).all()
-    #days = [h.timestamp.day for h in requests_last_30d]
-    #print(days)
-    #print(Counter(days))
-
-    return render_template('analysis/index.html', data_ip_top=data_ip_top,
+    data_endpoints_top = endpoints_top(10)
+    data_ip_top = ip_addresses_top(10)
+    return render_template('analysis/index.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN, data_ip_top=data_ip_top,
                            data_stored_requests_count=data_stored_requests_count, data_endpoints_top=data_endpoints_top,
                            data_url_path_top=data_url_path_top, data_distinct_ip_count=data_distinct_ip_count,
                            data_wp_password_tries_count=data_wp_password_tries_count, data_wp_password_tries_last_24h_count=data_wp_password_tries_last_24h_count,
-                           requests_chart_last_24h_values=requests_chart_last_24h_values, requests_chart_last_24h_index=requests_chart_last_24h_index,
                            utc_time_now=datetime.utcnow(), data_requests_last_24h_count=data_requests_last_24h_count,
-                           data_distinct_data_ips_last_24h_count=data_distinct_data_ips_last_24h_count, ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN)
+                           data_distinct_data_ips_last_24h_count=data_distinct_data_ips_last_24h_count)
 
 
 @app.route('/analysis/details')
@@ -119,3 +149,22 @@ def analysis_wordpress():
                            data_wp_xmlrpc_usernames_top=data_wp_xmlrpc_usernames_top,
                            data_wp_xmlrpc_passwords_top=data_wp_xmlrpc_passwords_top
                            )
+
+
+@app.route('/analysis/ip')
+@token_required
+def analysis_ip():
+    ip = request.args.get('ip')
+    try:
+        if ip is None:
+            raise ValueError("No IP received.")
+        ipaddress.ip_address(ip)
+    except ValueError:
+        return render_template('analysis/ip.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN, IP="")
+    data_table = [{'uuid': req.uuid,
+                  'request': {'id': req.id, 'url': req.url, 'timestamp': req.timestamp, 'method': req.method,
+                              'remote_addr': req.remote_addr}}
+                 for req in models.Request.query.filter_by(remote_addr=ip).all()]
+    geo_whois = gather_ip_geo_whois(ip)
+    bar_days, bar_requests = requests_all_days_chart(ip)
+    return render_template('analysis/ip.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN, table_content=data_table, IP=ip, geo_whois=geo_whois, bar_days=bar_days, bar_requests=bar_requests)

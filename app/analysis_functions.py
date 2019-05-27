@@ -3,7 +3,8 @@ from sqlalchemy import desc, func
 from collections import Counter
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
-#from defusedxml.ElementTree import fromstring
+# from defusedxml.ElementTree import fromstring
+import requests
 
 
 # When "today" and not last 24h wanted:
@@ -74,17 +75,40 @@ def requests_last_24h_count():
     return data_requests_last_24h_count
 
 
-def requests_last_24h_chart():
+def requests_last_x_hours_chart(x):
+    if int(x) > 24:
+        return [], []
     requests_last_24h = db.session.query(models.Request).filter(
-        models.Request.timestamp > (datetime.utcnow() - timedelta(hours=23))).all()
-    hours = [h.timestamp.hour for h in requests_last_24h]
-    hours_dict = {x: 0 for x in range(24)}
-    hours_dict.update(Counter(hours))
-    hour_now = datetime.utcnow().hour
-    index_ordered = [i % 24 for i in range(hour_now + 1, 24 + hour_now + 1)]
-    values_ordered = [hours_dict[h] for h in index_ordered]
-    index_ordered_beautified = ['{:2d}:00'.format(x) for x in index_ordered]
-    return values_ordered, index_ordered_beautified
+        models.Request.timestamp > (datetime.utcnow() - timedelta(hours=x))).all()
+    dates = [h.timestamp.replace(microsecond=0, second=0, minute=0) for h in requests_last_24h]
+    dates_counted = list(Counter(dates).items())
+    dates_counted = sorted(dates_counted)
+    # drop requests from previous hour, e.g. 4h back:  17:15 -> 13:15 (but we want till 13:00). So we go back to 12:15 and then drop all requests from 12:**
+    if (len(dates_counted) != 0) and (dates_counted[0][0].hour == (datetime.utcnow() - timedelta(hours=x)).hour):
+        dates_counted.pop(0)
+    # create list with all hours, to fill hours with zero requests
+    hour_list = []
+    for i in reversed(range(x)):
+        hour_list.append((datetime.utcnow() - timedelta(hours=i)).replace(microsecond=0, second=0, minute=0))
+    for i in hour_list:
+        if i not in [x[0] for x in dates_counted]:
+            dates_counted.append((i, 0))
+    dates_counted_sorted = sorted(dates_counted)
+    days = [i[0].strftime("%d. %b %H:%M") for i in dates_counted_sorted]
+    requests = [i[1] for i in dates_counted_sorted]
+    return days, requests
+
+
+# todo: works, however, leaves out days where 0 requests were recorded
+def requests_last_x_days_chart(x):
+    requests_last_x_days = db.session.query(models.Request).filter(
+        models.Request.timestamp > (datetime.utcnow().date() - timedelta(days=x-1))).all()
+    days = [h.timestamp.date() for h in requests_last_x_days]
+    days_counted = list(Counter(days).items())
+    days_counted_sorted = sorted(days_counted, key=lambda day: day)
+    days = [i[0].isoformat() for i in days_counted_sorted]
+    requests = [i[1] for i in days_counted_sorted]
+    return days, requests
 
 
 """
@@ -152,3 +176,18 @@ def wordpress_xmlrpc_password_tries_last_24h_count():
         if any(x in value for x in ['getUserBlogs', 'getUsersBlogs']):
             counter = counter + 1
     return counter
+
+
+def gather_ip_geo_whois(ip):
+    r = requests.get("http://ip-api.com/json/"+ip+"?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,reverse,mobile,proxy,query").json()
+    return r
+
+
+def requests_all_days_chart(ip):
+    data_timestamp = db.session.query(models.Request.timestamp).filter_by(remote_addr=ip).all()
+    dates = [h.timestamp.date() for h in data_timestamp]
+    days_counted = list(Counter(dates).items())
+    days_counted_sorted = sorted(days_counted, key=lambda day: day)
+    days = [i[0].isoformat() for i in days_counted_sorted]
+    requests = [i[1] for i in days_counted_sorted]
+    return days, requests
