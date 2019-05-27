@@ -9,7 +9,9 @@ The following pictures show examples of the built-in analysis capabilities of Mu
 
 ![overview-wordpress](images/pic2.png)
 
-![show-json-details](images/pic3.png)
+![show-ip-details](images/pic3.png)
+
+![show-json-details](images/pic4.png)
 
 
 # Features
@@ -17,6 +19,8 @@ The following pictures show examples of the built-in analysis capabilities of Mu
 * Saves client requests and server responses in SQLite database
 * Built-in web GUI analysis tool
   * Use the SQLite database with your favorite tool for further analyses
+* Detailed information on gathered IP addresses
+  * Utilizes free http://ip-api.com for whois/geoip information (free version doesn't allow SSL access)
 * Extensible, create your own fake pages
 
 
@@ -28,6 +32,7 @@ The following pictures show examples of the built-in analysis capabilities of Mu
 ```
 pip install flask
 pip install flask-sqlalchemy
+pip install requests
 ```
 For basic testing, the app can now be run with:
 ```
