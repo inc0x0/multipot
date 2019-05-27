@@ -126,3 +126,25 @@ a {
   margin-bottom: 20px;
   background-color: #ffffff;
   border: 1px solid rgba(183,183,183,.125);  }
+
+/* Inline selects on index*/
+.inl {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+
+#pageHeader {
+  margin: 0px -20px 15px -20px;
+  background-color: #FFFFFF;
+  padding-bottom: 5px;
+}
+
+.card-header {
+  color: #6b6b6b;
+}
+
+.main-title {
+  padding-left: 15px;
+  color: #6b6b6b;
+}
