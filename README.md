@@ -105,5 +105,5 @@ http(s)://<server>/analysis/overview?token=<ANALYSIS_TOKEN>
 ```
 
 ## Add your own fake websites
-1. Save your HTML skeleton in `app/static/newfakeapp/newfakeapp.html`
+1. Save your HTML skeleton in `app/static/fake-sites/newfakeapp/newfakeapp.html`
 2. Create new or modify route in `app/routes.py`
