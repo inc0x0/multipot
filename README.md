@@ -101,7 +101,7 @@ Change your secret `ANALYSIS_TOKEN`! Otherwise others with access to your webser
 
 After the setup browse to the following URL to see an overview on the recorded requests and their related responses:
 ```
-http(s)://<server>/analysis/details?token=<ANALYSIS_TOKEN>
+http(s)://<server>/analysis/index?token=<ANALYSIS_TOKEN>
 ```
 
 ## Add your own fake websites
