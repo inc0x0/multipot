@@ -86,7 +86,7 @@ Configure Apache:
 ## Step 4: Initialize database
 Use the provided empty `app.db` or generate a new basic `app.db` database:
 ```
-$ python app/setup_db.py
+$ python3 app/setup_db.py
 ```
 
 ## Step 5: Configure application !
