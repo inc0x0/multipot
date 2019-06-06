@@ -92,10 +92,11 @@ def requests_last_x_hours_chart(x):
     dates = [h.timestamp.replace(microsecond=0, second=0, minute=0) for h in requests_last_24h]
     dates_counted = list(Counter(dates).items())
     dates_counted = sorted(dates_counted)
-    # drop requests from previous hour, e.g. 4h back:  17:15 -> 13:15 (but we want till 13:00). So we go back to 12:15 and then drop all requests from 12:**
-    if (len(dates_counted) != 0) and (dates_counted[0][0].hour == (datetime.utcnow() - timedelta(hours=x)).hour):
+    # drop requests from previous hour, e.g. 4h back:  17:15 -> 13:15 (but we want till 13:00). So we go back to 12:15 and then drop all requests from 12:**, and check that it is the same day
+    if ((len(dates_counted) != 0) and (dates_counted[0][0].hour == (datetime.utcnow() - timedelta(hours=x)).hour) and (dates_counted[0][0].day == (datetime.utcnow() - timedelta(hours=x)).day)):
         dates_counted.pop(0)
     # create list with all hours, to fill hours with zero requests
+    print(dates_counted)
     hour_list = []
     for i in reversed(range(x)):
         hour_list.append((datetime.utcnow() - timedelta(hours=i)).replace(microsecond=0, second=0, minute=0))
