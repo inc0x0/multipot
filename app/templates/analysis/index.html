@@ -21,6 +21,11 @@
         <!-- end row -->
 
         <div class="row">
+            <div class="col-xl-12">
+                <div id="alertDiv">
+
+                </div>
+            </div>
             <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
                 <div class="card-box noradius noborder bg-warning">
                     <i class="fas fa-database fa-6x float-right text-white"></i>
@@ -56,6 +61,20 @@
                     <span class="text-white">Have a nice day</span>
                 </div>
             </div>
+            <script>
+                $(document).ready(function() {
+                        var url_string = window.location.href;
+                        var url = new URL(url_string);
+                        if (url.searchParams.get("token") === "verysecret") {
+                            console.log("muh");
+                            var t = '<div class="alert alert-danger alert-dismissible">Please change your token in the <code>config.py</code> file! Keeping it on default (<code>verysecret</code>) will endanger your honeypot installation.<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a></div>';
+                            document.getElementById("alertDiv").innerHTML = t;
+                        }
+
+                   });
+
+            </script>
+
         </div>
         <!-- end row -->
 
