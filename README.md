@@ -30,9 +30,9 @@ The following pictures show examples of the built-in analysis capabilities of Mu
 
 ## Step 2: Install prerequisites
 ```
-pip install flask
-pip install flask-sqlalchemy
-pip install requests
+pip3 install flask
+pip3 install flask-sqlalchemy
+pip3 install requests
 ```
 For basic testing, the app can now be run with:
 ```
