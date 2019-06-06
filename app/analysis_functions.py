@@ -11,12 +11,21 @@ import requests
 # data_number_requests_today = len([1 for x in data_requests_last_24h if x.timestamp.day == datetime.utcnow().day])
 
 
-def ip_addresses_top(x):
-    data_top_ip = [{'remote_addr': q.remote_addr, 'qty': q.qty}
-                   for q in
-                   db.session.query(func.count(models.Request.remote_addr).label('qty'), models.Request.remote_addr
-                                    ).group_by(models.Request.remote_addr).order_by(desc('qty')).limit(x)]
-    return data_top_ip
+def ip_addresses_top(x, days):
+    # 0 = all time
+    if days == 0:
+        data_top_ip = [{'remote_addr': q.remote_addr, 'qty': q.qty}
+                       for q in
+                       db.session.query(func.count(models.Request.remote_addr).label('qty'), models.Request.remote_addr
+                                        ).group_by(models.Request.remote_addr).order_by(desc('qty')).limit(x)]
+        return data_top_ip
+    else:
+        data_top_ip = [{'remote_addr': q.remote_addr, 'qty': q.qty}
+                       for q in
+                       db.session.query(func.count(models.Request.remote_addr).label('qty'), models.Request.remote_addr
+                                        ).filter(models.Request.timestamp > (datetime.utcnow() - timedelta(days=days))
+                                                 ).group_by(models.Request.remote_addr).order_by(desc('qty')).limit(x)]
+        return data_top_ip
 
 
 def wordpress_wp_login_usernames_password_tries_top(x):

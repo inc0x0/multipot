@@ -85,6 +85,13 @@ def api_analysis_chart_requests_last_x_hours(hours):
     return jsonify({'hours': requests_chart_last_x_days_hours, 'requests': requests_chart_last_x_hours_requests})
 
 
+@app.route('/api/analysis/table/top-ips/<int:top>/days/<int:days>', methods=['GET'])
+@token_required
+def api_analysis_table_ip_addresses_top(top, days):
+    data_top_ip = ip_addresses_top(top, days)
+    return jsonify(data_top_ip)
+
+
 @app.route('/analysis/index')
 @token_required
 def analysis_index():
@@ -98,8 +105,7 @@ def analysis_index():
     # row 3
     data_url_path_top = paths_top(10)
     data_endpoints_top = endpoints_top(10)
-    data_ip_top = ip_addresses_top(10)
-    return render_template('analysis/index.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN, data_ip_top=data_ip_top,
+    return render_template('analysis/index.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN,
                            data_stored_requests_count=data_stored_requests_count, data_endpoints_top=data_endpoints_top,
                            data_url_path_top=data_url_path_top, data_distinct_ip_count=data_distinct_ip_count,
                            data_wp_password_tries_count=data_wp_password_tries_count, data_wp_password_tries_last_24h_count=data_wp_password_tries_last_24h_count,

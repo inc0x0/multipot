@@ -66,6 +66,7 @@
                 <div class="card mb-3">
                     <div class="card-header">
                         <h5>Requests per day</h5>
+                        Click on a bar to preset the search below.
                     </div>
                     <div class="card-body">
                         <canvas id="xhourschart"></canvas>
@@ -94,6 +95,18 @@
                                     }
                                 }
                             });
+
+                            // set search in datatable when clicking on chart
+                            $("#xhourschart").click(
+                                function(evt){
+                                    var firstPoint = myBarChart.getElementAtEvent(evt)[0];
+                                    if (firstPoint) {
+                                        var label = myBarChart.data.labels[firstPoint._index];
+                                        //var value = myBarChart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
+                                        $('#mytable').DataTable().search( label ).draw();
+                                    }
+                                }
+                            );
                         </script>
                     </div>
                 </div>

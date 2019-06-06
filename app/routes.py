@@ -12,6 +12,12 @@ from app.helpers import save_request, save_response
 def index():
     return send_from_directory('static/fake-sites/drupal/', 'index_drupal7.html')
 
+
+@app.route('/user/login', methods=['GET', 'POST'])
+def drupal8_login():
+    return send_from_directory('static/fake-sites/drupal/', 'login_drupal8.html')
+
+
 # Wordpress admin login
 @app.route('/wp-admin', methods=['GET', 'POST'])
 @app.route('/wp-admin/', methods=['GET', 'POST'])
