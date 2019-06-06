@@ -38,6 +38,11 @@ For basic testing, the app can now be run with:
 ```
 $ python3 multipotapp.py
 ```
+Go to the URL below to enter the dashboard:
+```
+http://<server>:5000/analysis/index?token=verysecret
+```
+
 This should not be used in production. Please follow the more detailed installation procedure below.
 
 ## Step 3: Follow the official Flask deployment documentation:
