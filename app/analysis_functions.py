@@ -96,7 +96,6 @@ def requests_last_x_hours_chart(x):
     if ((len(dates_counted) != 0) and (dates_counted[0][0].hour == (datetime.utcnow() - timedelta(hours=x)).hour) and (dates_counted[0][0].day == (datetime.utcnow() - timedelta(hours=x)).day)):
         dates_counted.pop(0)
     # create list with all hours, to fill hours with zero requests
-    print(dates_counted)
     hour_list = []
     for i in reversed(range(x)):
         hour_list.append((datetime.utcnow() - timedelta(hours=i)).replace(microsecond=0, second=0, minute=0))
