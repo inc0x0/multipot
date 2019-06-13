@@ -200,3 +200,33 @@ def requests_all_days_chart(ip):
     days = [i[0].isoformat() for i in days_counted_sorted]
     requests = [i[1] for i in days_counted_sorted]
     return days, requests
+
+
+"""
+Drupal analysis
+"""
+def drupal8_username_password_tries_top(x):
+    usernames = []
+    passwords = []
+    data_form = db.session.query(models.Request.form).filter_by(endpoint='drupal8_login', method='POST').all()
+    for a in data_form:
+        try:
+            usernames.append(a[0]['name'])
+            passwords.append(a[0]['pass'])
+        except:
+            continue
+    usernames = Counter(usernames).most_common(x)
+    passwords = Counter(passwords).most_common(x)
+    return usernames, passwords
+
+
+def drupal8_password_tries_count():
+    data_counter = db.session.query(models.Request).filter_by(endpoint='drupal8_login', method='POST').count()
+    return data_counter
+
+
+def drupal8_password_tries_last_24h_count():
+    data_counter = db.session.query(models.Request).filter(
+        models.Request.timestamp > (datetime.utcnow() - timedelta(days=1)), models.Request.endpoint == 'drupal8_login',
+        models.Request.method == 'POST').count()
+    return data_counter

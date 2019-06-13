@@ -54,11 +54,11 @@
             </div>
 
             <div class="col-xs-12 col-md-6 col-lg-6 col-xl-3">
-                <div class="card-box noradius noborder bg-info">
-                    <i class="far fa-smile fa-6x float-right text-white"></i>
-                    <h6 class="text-white text-uppercase m-b-20">Here is a smiley</h6>
-                    <h1 class="m-b-20 text-white counter">:)</h1>
-                    <span class="text-white">Have a nice day</span>
+                <div class="card-box noradius noborder bg-danger">
+                    <i class="fas fa-exclamation-triangle fa-6x float-right text-white"></i>
+                    <h6 class="text-white text-uppercase m-b-20">Drupal pwd guesses</h6>
+                    <h1 class="m-b-20 text-white counter">{{ data_drupal8_password_tries_count }}</h1>
+                    <span class="text-white">{{ data_drupal8_password_tries_last_24h_count }} (last 24 hours)</span>
                 </div>
             </div>
             <script>
@@ -72,9 +72,7 @@
                         }
 
                    });
-
             </script>
-
         </div>
         <!-- end row -->
 

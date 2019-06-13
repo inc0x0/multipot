@@ -102,6 +102,8 @@ def analysis_index():
     data_distinct_data_ips_last_24h_count = distinct_ip_addresses_last_24h_count()
     data_wp_password_tries_count = wordpress_wp_login_password_tries_count() + wordpress_xmlrpc_password_tries_count()
     data_wp_password_tries_last_24h_count = wordpress_wp_login_password_tries_last_24h_count() + wordpress_xmlrpc_password_tries_last_24h_count()
+    data_drupal8_password_tries_count = drupal8_password_tries_count()
+    data_drupal8_password_tries_last_24h_count = drupal8_password_tries_last_24h_count()
     # row 3
     data_url_path_top = paths_top(10)
     data_endpoints_top = endpoints_top(10)
@@ -110,7 +112,10 @@ def analysis_index():
                            data_url_path_top=data_url_path_top, data_distinct_ip_count=data_distinct_ip_count,
                            data_wp_password_tries_count=data_wp_password_tries_count, data_wp_password_tries_last_24h_count=data_wp_password_tries_last_24h_count,
                            utc_time_now=datetime.utcnow(), data_requests_last_24h_count=data_requests_last_24h_count,
-                           data_distinct_data_ips_last_24h_count=data_distinct_data_ips_last_24h_count)
+                           data_distinct_data_ips_last_24h_count=data_distinct_data_ips_last_24h_count,
+                           data_drupal8_password_tries_count=data_drupal8_password_tries_count,
+                           data_drupal8_password_tries_last_24h_count=data_drupal8_password_tries_last_24h_count
+                           )
 
 
 @app.route('/analysis/details')
@@ -174,3 +179,21 @@ def analysis_ip():
     geo_whois = gather_ip_geo_whois(ip)
     bar_days, bar_requests = requests_all_days_chart(ip)
     return render_template('analysis/ip.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN, table_content=data_table, IP=ip, geo_whois=geo_whois, bar_days=bar_days, bar_requests=bar_requests)
+
+
+@app.route('/analysis/drupal')
+@token_required
+def analysis_drupal():
+    # row 1
+    data_drupal8_password_tries_count = drupal8_password_tries_count()
+    data_drupal8_password_tries_last_24h_count = drupal8_password_tries_last_24h_count()
+    data_distinct_passwords_tried = len(drupal8_username_password_tries_top(None)[1])
+    # row 2
+    data_drupal8_login_usernames_top, data_drupal8_login_passwords_top = drupal8_username_password_tries_top(10)
+    return render_template('analysis/drupal.html', ANALYSIS_TOKEN=Config.ANALYSIS_TOKEN,
+                           data_drupal8_password_tries_count=data_drupal8_password_tries_count,
+                           data_drupal8_password_tries_last_24h_count=data_drupal8_password_tries_last_24h_count,
+                           data_distinct_passwords_tried=data_distinct_passwords_tried,
+                           data_drupal8_login_usernames_top=data_drupal8_login_usernames_top,
+                           data_drupal8_login_passwords_top=data_drupal8_login_passwords_top
+                           )
