@@ -80,9 +80,11 @@ Configure Apache:
     <Directory /var/www/yourapplication>
         WSGIProcessGroup yourapplication
         WSGIApplicationGroup %{GLOBAL}
-        # Order deny,allow    # old syntax
-        # Allow from all      # old syntax
-        Require all granted   # new syntax
+        # old syntax:
+        # Order deny,allow
+        # Allow from all
+        # new syntax:
+        Require all granted
     </Directory>
 </VirtualHost>
 ```
