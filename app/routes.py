@@ -10,9 +10,14 @@ from app.helpers import save_request, save_response
 # Drupal 7
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # check if "?q=user" for Drupal 6/7 login (currently uses Drupal 8 login page; works because login form parameter are the same in Drupal 6,7,8)
+    # TODO: find a way to implement this outside of the index route
+    #if request.args['q'] == 'user':
+    #    return send_from_directory('static/fake-sites/drupal/', 'login_drupal8.html')
     return send_from_directory('static/fake-sites/drupal/', 'index_drupal7.html')
 
 
+# Drupal user login
 @app.route('/user/login', methods=['GET', 'POST'])
 def drupal8_login():
     return send_from_directory('static/fake-sites/drupal/', 'login_drupal8.html')
