@@ -1,5 +1,5 @@
 from app import db, models
-from sqlalchemy import desc, func
+from sqlalchemy import desc, func, or_
 from collections import Counter
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
@@ -151,15 +151,16 @@ def wordpress_xmlrpc_username_password_tries_top(x):
     passwords = []
     data_form = db.session.query(models.Request.form).filter_by(endpoint='wp_xmlrpc', method='POST').all()
     for a in data_form:
-        value = list(a[0].values())[0]
-        try:
-            b = value.split("<member><name>params</name><value><array><data><value><array><data><value><string>")
-            c = b[1].split("</string></value></data></array></value></data></array></value></member>")
-            d = c[0].split("</string></value><value><string>")
-            usernames.append(d[0])
-            passwords.append(d[1])
-        except:
-            continue
+        if list(a[0].values()):
+            value = list(a[0].values())[0]
+            try:
+                b = value.split("<member><name>params</name><value><array><data><value><array><data><value><string>")
+                c = b[1].split("</string></value></data></array></value></data></array></value></member>")
+                d = c[0].split("</string></value><value><string>")
+                usernames.append(d[0])
+                passwords.append(d[1])
+            except:
+                continue
     usernames = Counter(usernames).most_common(x)
     passwords = Counter(passwords).most_common(x)
     return usernames, passwords
@@ -169,9 +170,10 @@ def wordpress_xmlrpc_password_tries_count():
     counter = 0
     data_form = db.session.query(models.Request.form).filter_by(endpoint='wp_xmlrpc', method='POST').all()
     for a in data_form:
-        value = list(a[0].values())[0]
-        if any(x in value for x in ['getUserBlogs', 'getUsersBlogs']):
-            counter = counter + 1
+        if list(a[0].values()):
+            value = list(a[0].values())[0]
+            if any(x in value for x in ['getUserBlogs', 'getUsersBlogs']):
+                counter = counter + 1
     return counter
 
 
@@ -181,9 +183,10 @@ def wordpress_xmlrpc_password_tries_last_24h_count():
         models.Request.timestamp > (datetime.utcnow() - timedelta(days=1)), models.Request.endpoint == 'wp_xmlrpc',
         models.Request.method == 'POST').all()
     for a in data_form:
-        value = list(a[0].values())[0]
-        if any(x in value for x in ['getUserBlogs', 'getUsersBlogs']):
-            counter = counter + 1
+        if list(a[0].values()):
+            value = list(a[0].values())[0]
+            if any(x in value for x in ['getUserBlogs', 'getUsersBlogs']):
+                counter = counter + 1
     return counter
 
 
@@ -205,7 +208,7 @@ def requests_all_days_chart(ip):
 """
 Drupal analysis
 """
-def drupal8_username_password_tries_top(x):
+def drupal_username_password_tries_top(x):
     usernames = []
     passwords = []
     data_form = db.session.query(models.Request.form).filter_by(endpoint='drupal8_login', method='POST').all()
@@ -220,12 +223,13 @@ def drupal8_username_password_tries_top(x):
     return usernames, passwords
 
 
-def drupal8_password_tries_count():
+def drupal_password_tries_count():
     data_counter = db.session.query(models.Request).filter_by(endpoint='drupal8_login', method='POST').count()
+    #data_counter = db.session.query(models.Request).filter(or_(models.Request.endpoint=='drupal_login', models.Request.endpoint=='drupal8_login'), models.Request.method=='POST').count()
     return data_counter
 
 
-def drupal8_password_tries_last_24h_count():
+def drupal_password_tries_last_24h_count():
     data_counter = db.session.query(models.Request).filter(
         models.Request.timestamp > (datetime.utcnow() - timedelta(days=1)), models.Request.endpoint == 'drupal8_login',
         models.Request.method == 'POST').count()
