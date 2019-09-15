@@ -38,6 +38,8 @@ For basic testing, the app can now be run with:
 ```
 $ python3 multipotapp.py
 ```
+By default the server is only reachable on localhost as the development server is not designed to be very stable/secure. You can change that setting in `multipot/multipotapp.py` and set the `app.run()` to `app.run(host='0.0.0.0')` to run on your machines IP address.
+
 Go to the URL below to enter the dashboard:
 ```
 http://<server>:5000/analysis/index?token=verysecret
